@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Sample Page</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <style>
+        .displaysize {
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Position Changes Detected: </h1><span class="displaysize" id="positionChangeCount"></span>
+    <h1>Latitude: </h1><span class="displaysize" id="latitude"></span>
+    <h1>Longitude: </h1><span class="displaysize" id="longitude"></span>
+    <h1>Heading: </h1><span class="displaysize" id="heading"></span>
+    <h1>Speed: </h1><span class="displaysize" id="speed"></span>
+    <br /><br />
+
+</div>
+
+<script>
+$(function(){
+    var positionChangeCount = 0;
+    var intevalId;
+
+
+
+
+    var showPos = function(pos){
+        positionChangeCount += 1;
+        $("#positionChangeCount").html(positionChangeCount);
+        $("#latitude").html(pos.coords.latitude);
+        $("#longitude").html(pos.coords.longitude);
+        $("#heading").html(pos.coords.heading || "no heading found");
+        $("#speed").html(pos.coords.speed || "no speed found");
+
+        var json_string = JSON.stringify({
+            "latitude": pos.coords.latitude,
+            "longitude": pos.coords.longitude
+        });
+
+        var req = {
+            url: "/addlocation",
+            method: "post",
+            headers: {
+                "Content-type": "application/json"
+            },
+            data: json_string
+        };
+
+        var dbSubmissionSuccess = function(data){
+            console.log("success");
+            console.log(data);
+        };
+
+        var dbSubmissionFailure = function(data){
+            console.log("failure");
+            console.log(data);
+        };
+
+        var promise = $.ajax(req);
+        promise.then(dbSubmissionSuccess, dbSubmissionFailure);
+
+    };
+
+    navigator.geolocation.watchPosition(showPos);
+
+});
+
+var xx = 42;
+</script>
+</body>
+</html>
